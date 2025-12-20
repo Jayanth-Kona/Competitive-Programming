@@ -16,7 +16,7 @@ public:
         return res;
     }
 
-    matrix operator ^(int power){
+    matrix operator ^(ll power){
         matrix A = *this , res;
         REP(i , 2) res.mat[i][i] = 1;
         while(power){
