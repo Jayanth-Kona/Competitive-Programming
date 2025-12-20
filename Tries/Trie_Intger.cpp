@@ -8,7 +8,7 @@ public:
 
 class Trie{
 
-private:  Node *root;
+private: Node *root;
 
 public:
 
@@ -18,7 +18,7 @@ public:
 
     void add(int num){
         Node* node = root;
-        for(int pos = 0 ; pos < 32 ; pos++){
+        for(int pos = 31 ; pos >= 0 ; pos--){
             int bit = num >> pos & 1;
             if(node->child[bit] == NULL) node = node->child[bit] = new Node();
             else node = node->child[bit];
@@ -27,7 +27,7 @@ public:
 
     bool search(int num){
         Node* node = root;
-        for(int pos = 0 ; pos < 32 ; pos++){
+        for(int pos = 31 ; pos >= 0 ; pos--){
             int bit = num >> pos & 1;
             if(node->child[bit] == NULL) return false;
             node = node->child[bit];
@@ -37,7 +37,7 @@ public:
 
     int maximumXor(int num , int Xor = 0){
         Node* node = root;
-        for(int pos = 0 ; pos < 32 ; pos++){
+        for(int pos = 31 ; pos >= 0 ; pos--){
             int bit = num >> pos & 1;
             if(node->child[1 - bit] != NULL){
                 Xor += 1LL << pos;
