@@ -56,6 +56,14 @@ public:
             int mid = (low + high) >> 1;
             return Query(node << 1 , low , mid , qL , qR) + Query(node << 1 | 1 , mid + 1 , high , qL , qR);
       }
+
+      Node update(int node , int low , int high , int index , int val){
+            if(low == high) return Tree[node] = Node(val);
+            int mid = (low + high) >> 1;
+            if(index <= mid) update(node << 1 , low , mid , index , val);
+            else update(node << 1 | 1 , mid + 1 , high , index , val);
+            return Tree[node] = Tree[node << 1] + Tree[node << 1 | 1];
+      }
 };
 
 
