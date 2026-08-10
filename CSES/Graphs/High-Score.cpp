@@ -20,7 +20,7 @@ what we can do:
  
 if Dn1 < Dn2?
     then it means, we have infinite cycle
-    which can relax edges for forever and increase tge score of 'n'
+    which can relax edges for forever and increase the score of 'n'
  
  
 No, This is also wrong. Assume have a small cycle with 2 nodes and 1 unit weight.
