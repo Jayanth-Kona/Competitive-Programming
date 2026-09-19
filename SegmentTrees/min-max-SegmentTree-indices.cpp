@@ -1,62 +1,99 @@
 #include<bits/stdc++.h>
 using namespace std;
 
-const int N = 1e5 + 2;
-const int inf = 1e9;
+class Node{
+public:
+    int minIndex;
+    int maxIndex;
+    int minValue;
+    int maxValue;
 
-int n;
-vector<int> a;
-vector<pair<int,int>> tree;
-
-pair<int,int> merge(pair<int,int> lc,pair<int,int> rc){
-    int minId = a[lc.first] < a[rc.first] ? lc.first : rc.first;
-    int maxId = a[lc.second] > a[rc.second] ? lc.second : rc.second;
-    return make_pair(minId,maxId);
-}
-
-void build(int node,int l,int h){
-    if(l == h){tree[node] = make_pair(l,l); return;}
-    int m = l + h >> 1;
-    build(node<<1,l,m);
-    build(node<<1|1,m+1,h);
-    tree[node] = merge(tree[node<<1],tree[node<<1|1]);
-}
-
-pair<int,int> qu(int node,int l,int r,int ql,int qr){
-    if(ql > r || qr < l) return {n,n+1};
-    if(l >= ql && r <= qr) return tree[node];
-    int m = l + r >> 1;
-    return merge(qu(node<<1,l,m,ql,qr),qu(node<<1|1,m+1,r,ql,qr));
-}
-
-
-void F(){
-    cin >> n;
-    a.resize(n+2);
-    a[n] = +inf , a[n+1] = -inf;
-    for(int i=0;i<n;i++) cin >> a[i];
-    tree.resize(n<<2|1);
-    build(1,0,n-1);
-    int q; cin >> q;
-    while(q--){
-        int l , r;
-        cin >> l >> r;
-        pair<int,int> p = qu(1,0,n-1,l-1,r-1);
-        if(a[p.first] != a[p.second]){
-          cout << p.first+1 << " " << p.second+1;  
-        } 
-        else cout << "-1 -1";
-        cout << endl;
+    Node(){
+        minIndex = maxIndex = -1;
+        minValue = +2e9;
+        maxValue = -2e9;
     }
-}
 
+    Node(int index , int value){
+        minIndex = maxIndex = index;
+        minValue = maxValue = value;
+    }
+
+    friend Node operator+(const Node &u , const Node &v){
+        Node uv;
+        if(u.minValue < v.minValue){
+            uv.minIndex = u.minIndex;
+            uv.minValue = u.minValue;
+        }
+        else{
+            uv.minIndex = v.minIndex;
+            uv.minValue = v.minValue;
+        }
+        if(u.maxValue > v.maxValue){
+            uv.maxIndex = u.maxIndex;
+            uv.maxValue = u.maxValue;
+        }
+        else{
+            uv.maxIndex = v.maxIndex;
+            uv.maxValue = v.maxValue;
+        }
+        return uv;
+    }
+};
+
+class SegmentTree{
+private:
+    int N;
+    vector<Node> Tree;
+
+public:
+    SegmentTree(int N , vector<int> &A){
+        this->N = N;
+        Tree.resize(N << 2 | 2);
+        Build(1 , 0 , N - 1 , A);
+    }
+
+    Node Build(int node , int low , int high , vector<int> &A){
+        if(low == high) return Tree[node] = Node(low , A[low]);
+        int mid = (low + high) >> 1;
+        return Tree[node] = Build(node << 1 , low , mid , A) + Build(node << 1 | 1 , mid + 1 , high , A);
+    }
+
+    Node Query(int node , int low , int high , int qL , int qR){
+        if(high < qL || low > qR) return Node();
+        if(qL <= low && high <= qR) return Tree[node];
+        int mid = (low + high) >> 1;
+        return Query(node << 1 , low , mid , qL , qR) + Query(node << 1 | 1 , mid + 1 , high , qL , qR);
+    }
+
+    Node Update(int node , int low , int high , int index , int value){
+        if(low == high) return Tree[node] = Node(index , value);
+        int mid = (low + high) >> 1;
+        if(index <= mid) Update(node << 1, low, mid, index, value);
+        else Update(node << 1 | 1, mid + 1, high, index, value);
+        return Tree[node] = Tree[node << 1] + Tree[node << 1 | 1];
+    }
+
+    array<int , 2> minmax(int L , int R){
+        Node LR = Query(1 , 0 , N - 1 , L , R);
+        return {LR.minIndex , LR.maxIndex};
+    }
+
+    void Update(int index , int value){
+        Update(1 , 0 , N - 1 , index , value);
+    }
+};
 
 int main(){
-    int t;
-    cin >> t;
-    while(t--){
-        F();
-        cout <<"\n";
-    }
+    int N ; cin >> N;
+
+    vector<int> A(N);
+    for(int &num : A) cin >> num;
+
+    SegmentTree seg(N , A);
+    
+    auto [i , j] = seg.minmax(0 , N - 1);
+    cout << i << " " << j;
+
     return 0;
 }
